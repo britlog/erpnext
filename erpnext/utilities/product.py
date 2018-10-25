@@ -108,7 +108,7 @@ def get_price(item_code, price_list, customer_group, company, qty=1):
 
 				uom_conversion_factor = frappe.db.sql("""select	C.conversion_factor
 					from `tabUOM Conversion Detail` C
-					inner join `tabItem` I on C.parent = I.item_code and C.uom = I.sales_uom
+					inner join `tabItem` I on C.parent = I.name and C.uom = I.sales_uom
 					where I.item_code = %s""", item_code)
 
 				uom_conversion_factor = uom_conversion_factor[0][0] if uom_conversion_factor else 1
