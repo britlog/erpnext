@@ -143,13 +143,15 @@ def get_items_list(pos_profile):
 
 	return frappe.db.sql(""" 
 		select
-			name, item_code, item_name, description, item_group, expense_account, has_batch_no,
-			has_serial_no, expense_account, selling_cost_center, stock_uom, image, 
-			default_warehouse, is_stock_item, barcode, brand
+			I.name, I.item_code, I.item_name, I.description, I.item_group, I.expense_account, I.has_batch_no,
+			I.has_serial_no, I.expense_account, I.selling_cost_center, I.stock_uom, I.image, 
+			I.default_warehouse, I.is_stock_item, I.barcode, I.brand, I.sales_uom, C.conversion_factor
 		from
-			tabItem
+			tabItem I
+		left join
+			`tabUOM Conversion Detail` C on I.name = C.parent and I.sales_uom = C.uom
 		where
-			disabled = 0 and has_variants = 0 and is_sales_item = 1 and {cond}
+			I.disabled = 0 and I.has_variants = 0 and I.is_sales_item = 1 and {cond}
 		""".format(cond=cond), tuple(item_groups), as_dict=1)
 
 def get_item_groups(pos_profile):
@@ -474,6 +476,7 @@ def validate_item(doc):
 			item_doc.description = item.get('description')
 			item_doc.default_warehouse = item.get('warehouse')
 			item_doc.stock_uom = item.get('stock_uom')
+			item_doc.uom = item.get('uom')
 			item_doc.item_group = item.get('item_group')
 			item_doc.save(ignore_permissions=True)
 			frappe.db.commit()
